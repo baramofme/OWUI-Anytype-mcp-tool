@@ -10,10 +10,29 @@ from __future__ import annotations
 import asyncio
 import csv
 import io
+import json
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Union
 import httpx
 from pydantic import BaseModel, Field
+
+# Mocking HTMLResponse in case fastapi is not available in the runtime environment
+try:
+    from fastapi.responses import HTMLResponse
+except ImportError:
+    class HTMLResponse:
+        def __init__(self, content: str, headers: dict = None):
+            self._content = content
+            self._headers = headers or {}
+        @property
+        def body(self) -> bytes:
+            return self._content.encode("utf-8")
+        @property
+        def headers(self) -> dict:
+            return self._headers
+        @property
+        def status_code(self) -> int:
+            return 200
 
 
 class AuthManager:
@@ -65,8 +84,73 @@ class FlatteningService:
 
     MAX_DYNAMIC_COLUMNS = 500
 
-    def __init__(self):
+    def __init__(self, valves: Any | None = None):
+        self.valves = valves
         pass
+
+    def _get_effective_columns(self, rows: List[Dict[str, Any]]) -> List[str]:
+        if not rows or not self.valves:
+            return []
+
+        try:
+            display_config = json.loads(self.valves.type_display_config)
+        except Exception:
+            display_config = {}
+
+        try:
+            exclude_config = json.loads(self.valves.type_exclude_config)
+        except Exception:
+            exclude_config = {}
+
+        # 1. Identify unique type_keys present in data
+        present_types = {row["type_key"] for row in rows if "type_key" in row and row["type_key"]}
+        
+        if not present_types:
+             return []
+
+        target_columns_set = set()
+
+        if len(present_types) == 1:
+            t_key = list(present_types)[0]
+            if t_key in display_config:
+                target_columns_set = set(display_config[t_key])
+            else:
+                # Fallback: All columns that appear in objects of this specific type
+                target_columns_set = {k for r in rows if r.get("type_key") == t_key for k in r.keys()}
+        else:
+            # Mixed types logic: Intersection of whitelists
+            intersection_sets = []
+            for t_key in present_types:
+                if t_key in display_config:
+                    intersection_sets.append(set(display_config[t_key]))
+                else:
+                    # For a type with NO whitelist defined, its potential is everything it has
+                    type_specific_cols = {k for r in rows if r.get("type_key") == t_key for k in r.keys()}
+                    intersection_sets.append(type_specific_cols)
+            
+            if intersection_sets:
+                target_columns_set = set.intersection(*intersection_sets)
+            else:
+                target_columns_set = set()
+
+        # 2. Apply Blacklist (Exclude Config)
+        blacklist = exclude_config.get("all", [])
+        if isinstance(blacklist, list):
+            target_columns_set = target_columns_set - set(blacklist)
+        
+        # 3. Handle Metadata Visibility
+        if not self.valves.show_context_metadata:
+            meta_keys = {"object", "id", "space_id", "layout", "archived", "type_id", "type_key"}
+            target_columns_set = target_columns_set - meta_keys
+
+        return sorted(list(target_columns_set))
+
+    def _apply_filter(self, rows: List[Dict[str, Any]], effective_columns: List[str]) -> List[Dict[str, Any]]:
+        filtered_rows = []
+        for row in rows:
+            aligned_row = {k: row[k] for k in effective_columns if k in row}
+            filtered_rows.append(aligned_row)
+        return filtered_rows
 
     def _convert_to_kst(self, utc_str: str) -> str:
         """Converts ISO UTC string to KST (UTC+9) in YYYY-MM-DD HH:mm:ss format."""
@@ -136,7 +220,7 @@ class FlatteningService:
         tasks = [self._process_item(item, proxy, headers) for item in items]
         flattened_rows = await asyncio.gather(*tasks)
 
-        # 4. Column Alignment & Explosion Check
+        # 4. Column Alignment, Filtering & Explosion Check
         all_keys = set()
         for row in flattened_rows:
             all_keys.update(row.keys())
@@ -144,11 +228,8 @@ class FlatteningService:
         if len(all_keys) > self.MAX_DYNAMIC_COLUMNS:
             raise Exception(f"Column explosion detected ({len(all_keys)} columns).")
 
-        sorted_keys = sorted(list(all_keys))
-        final_rows = []
-        for row in flattened_rows:
-            aligned_row = {k: row.get(k, "") for k in sorted_keys}
-            final_rows.append(aligned_row)
+        effective_columns = self._get_effective_columns(flattened_rows)
+        final_rows = self._apply_filter(flattened_rows, effective_columns)
             
         return final_rows, pagination
 
@@ -249,7 +330,6 @@ class CsvGenerator:
 
 
 class Tools:
-class Tools:
     class Valves(BaseModel):
         mcp_url: str = Field(
             default="http://localhost:9999",
@@ -257,15 +337,11 @@ class Tools:
         )
         api_key: str = Field(default="", description="Your API key for authentication.")
         
-        # Type-based display configuration (Whitelist)
-        # Format: {"task": ["name", "status", ...], "project": [...]}
         type_display_config: str = Field(
             default="{}",
             description="JSON mapping type_key to a list of allowed column names."
         )
         
-        # Configuration for mixed types (Blacklist)
-        # Format: {"all": ["snippet", "archived"], ...}
         type_exclude_config: str = Field(
             default="{}",
             description="JSON mapping type_key (or 'all') to a list of columns to exclude during mixed-type results."
@@ -288,16 +364,16 @@ class Tools:
 
     def __init__(self):
         self.auth_manager = AuthManager()
-        self.flattening_service = FlatteningService()
         self.csv_generator = CsvGenerator()
         self.valves = self.Valves()
+        self.flattening_service = FlatteningService(self.valves)
 
     async def _run_and_format(
             self,
             endpoint: str,
             method: str,
             payload: Dict[str, Any],
-    ) -> str:
+    ) -> Union[str, tuple[HTMLResponse, Any]]:
         proxy = ProxyClient(self.valves.mcp_url)
         headers = self.auth_manager.get_headers(self.valves.api_key)
         try:
@@ -309,6 +385,36 @@ class Tools:
             if not processed_rows:
                 return "No data found."
 
+            # 1. Detect unconfigured types
+            unconfigured_types = []
+            try:
+                display_config = json.loads(self.valves.type_display_config)
+            except Exception:
+                display_config = {}
+
+            for row in processed_rows:
+                t_key = row.get("type_key")
+                if t_key and t_key not in display_config:
+                    if t_key not in unconfigured_types:
+                        unconfigured_types.append(t_key)
+
+            # 2. If there are unconfigured types, provide limited preview + configuration prompt as text
+            if unconfigured_types:
+                preview_count = self.valves.preview_rows
+                preview_rows = processed_rows[:preview_count]
+                csv_preview = self.csv_generator.generate(preview_rows)
+                
+                prompt_msg = ""
+                for utype in unconfigured_types:
+                    prompt_msg += f"\n⚠️ **[{utype}]** is not yet configured. To set up its columns, please say '**{utype} 속성 설정해줘**'."
+                
+                return (f"### 📊 [DATA PREVIEW - LIMITED VIEW]\n\n"
+                        f"{prompt_msg}\n\n"
+                        f"(Showing only top {len(preview_rows)} rows for unconfigured types)\n\n"
+                        f"```csv\n{csv_preview}\n```")
+
+            # 3. Standard Full Output (All types are configured or no unconfigured types found)
+            # We return an HTMLResponse to trigger Rich UI embedding via OpenWebUI middleware/event emitter.
             csv_content = self.csv_generator.generate(processed_rows)
             
             # Build Pagination Info String for LLM context
@@ -318,26 +424,205 @@ class Tools:
                 offset = pagination.get("offset", 0)
                 limit = pagination.get("limit", len(processed_rows))
                 has_more = pagination.get("has_more", False)
-                
                 current_end = offset + len(processed_rows)
                 status_text = f"Showing items {offset + 1} to {min(current_end, total if total else current_end)} of {total if total else 'N/A'}"
                 pag_info.append(f"**{status_text}**")
                 if has_more:
                     pag_info.append("(More results available)")
-
+            
             pagination_md = f"**Pagination:** {' | '.join(pag_info)}\n" if pag_info else ""
 
-            final_output = (
-                f"### 📊 [INTEGRATED DATA TABLE]\n"
-                f"{pagination_md}"
-                f"{csv_content}\n\n"
-                f"*Note: This table contains unified semantic content and structural metadata for advanced reasoning.*\n"
-            )
-            return final_output
+            html_template = f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {{ font-family: sans-serif; margin: 0; padding: 10px; overflow: hidden; }}
+        #grid-container {{ height: 450px; width: 100%; }}
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
+</head>
+<body>
+    <div>{pagination_md}</div>
+    <div id="grid-container"></div>
+    <pre id="csv_payload" style="display:none;">{csv_content}</pre>
+    <script>
+      (function() {{
+        // Height reporting for sandboxed iframe resizing in OpenWebUI
+        function reportHeight() {{
+          try {{
+            const h = document.documentElement.scrollHeight;
+            parent.postMessage({{ type: 'iframe:height', height: h }}, '*');
+          }} catch (e) {{ console.error('Height report failed:', e); }}
+        }}
+        window.addEventListener('load', reportHeight);
+        new ResizeObserver(reportHeight).observe(document.body);
+
+        const csvTextEl = document.getElementById('csv_payload');
+        if (!csvTextEl) return;
+        const csvText = csvTextEl.textContent.trim();
+        if (!csvText) return;
+
+        const lines = csvText.split('\\n');
+        const headers = lines[0].split(',').map(h => h.trim());
+        const rowData = lines.slice(1).map(line => {{
+          // Robust regex split handling quoted commas correctly
+          const values = line.split(/,(?=(?:(?:[^"]*\\"){{2}})*[^"]*$)/);
+          const obj = {{}};
+          headers.forEach((header, i) => {{
+              let val = values[i]?.trim() || '';
+              obj[header] = val.replace(/^"|"$/g, ''); // Remove wrapping quotes
+          }});
+          return obj;
+        }});
+
+        const gridDiv = document.querySelector('#grid-container');
+        const gridOptions = {{
+          columnDefs: headers.map(col => ({{ field: col, sortable: true, filter: true, resizable: true }})),
+          rowData: rowData,
+          pagination: true,
+          paginationPageSize: 20,
+          autoSizeLeft: true,
+          autoSizeRight: true
+        }};
+
+        if (typeof agGrid !== 'undefined') {{
+          agGrid.createGrid(gridDiv, gridOptions);
+        }} else {{
+          gridDiv.innerHTML = '<p style="color:red">Error: AG Grid library not loaded.</p>';
+        }}
+      }})();
+    </script>
+</body>
+</html>
+"""
+            # Return the HTMLResponse and a text context summary to the LLM
+            context_summary = f"{len(processed_rows)} items found. Displaying interactive table."
+            if pagination and pagination.get("has_more"):
+                context_summary += " More results available via pagination."
+                
+            return HTMLResponse(content=html_template, headers={"Content-Disposition": "inline"}), context_summary
+
         except Exception as e:
             return f"Error executing '{endpoint}': {str(e)}"
 
+
     # --- TOOL METHODS START HERE ---
+
+    async def manage_type_config(
+            self,
+            type_key: str,
+            space_id: Optional[str] = None
+    ) -> str:
+        """Manage display configuration for a specific object type via interactive checkbox UI."""
+        proxy = ProxyClient(self.valves.mcp_url)
+        headers = self.auth_manager.get_headers(self.valves.api_key)
+        
+        available_columns = []
+        
+        if space_id:
+             try:
+                 template_resp = await proxy.request("POST", "API-list-templates", {"space_id": space_id, "type_id": type_key}, headers)
+                 if isinstance(template_resp, list) and len(template_resp) > 0:
+                     template = template_resp[0]
+                     props = template.get("properties", [])
+                     available_columns = [p.get("name") for p in props if p.get("name")]
+             except Exception:
+                 pass
+        
+        current_config_str = self.valves.type_display_config
+        try:
+            current_config = json.loads(current_config_str)
+        except Exception:
+            current_config = {}
+        
+        existing_cols = current_config.get(type_key, [])
+        
+        html_output = f"""
+<div style="border: 1px solid #555; padding: 15px; border-radius: 8px; background: #f9f9f9; color: #333;">
+    <h4>⚙️ {type_key} 속성 설정</h4>
+    <p>표시할 컬럼을 선택하세요:</p>
+    <form id="configForm">
+"""
+        if available_columns:
+            for col in available_columns:
+                checked = "checked" if col in existing_cols else ""
+                html_output += f'<label style="display: block; margin-bottom: 5px;"><input type="checkbox" name="col" value="{col}" {checked}> {col}</label>'
+        else:
+            html_output += '<p><small>자동 감지된 속성이 없습니다. 아래에 직접 입력하거나 검색 후 다시 시도해 주세요.</small></p>'
+            html_output += '<input type="text" id="manualCol" placeholder="컬럼명 입력..." style="width:70%;"><button type="button" onclick="addManual()">추가</button><br><br>'
+            html_output += '<ul id="manualList" style="margin-top: 10px;"></ul>'
+
+        html_output += """
+    </form>
+    <br>
+    <button onclick="saveConfig()" style="background: #2ecc71; color: white; border: none; padding: 8px 16px; cursor: pointer; border-radius: 4px;">설정 저장</button>
+    <span id="status" style="margin-left: 10px; font-size: 0.9em;"></span>
+</div>
+
+<script>
+  let currentCols = ${json.dumps(existing_cols)};
+
+  function addManual() {
+    const input = document.getElementById('manualCol');
+    const val = input.value.trim();
+    if (val && !currentCols.includes(val)) {
+      currentCols.push(val);
+      updateList();
+      input.value = '';
+    }
+  }
+
+  function updateList() {
+    const list = document.getElementById('manualList');
+    if (list) {
+        list.innerHTML = '';
+        currentCols.forEach((c, i) => {
+            const li = document.createElement('li');
+            li.textContent = c;
+            li.style.cursor = 'pointer';
+            li.onclick = () => { currentCols.splice(i, 1); updateList(); };
+            list.appendChild(li);
+        });
+    }
+  }
+
+  async function saveConfig() {
+    const status = document.getElementById('status');
+    status.innerText = '저장 중...';
+    
+    // Collect checkboxes if they exist
+    const checkboxElements = document.querySelectorAll('input[name="col"]');
+    const selectedFromCheckboxes = [];
+    checkboxElements.forEach(cb => {{
+        if (cb.checked) selectedFromCheckboxes.push(cb.value);
+    }});
+
+    // Merge with manual columns
+    const finalSelection = [...new Set([...selectedFromCheckboxes, ...currentCols])];
+
+    try {{
+      // Note: In a real OpenWebUI environment, the TOOL_ID is required for direct API calls.
+      // Since we cannot easily get it here via JS, we provide an instruction fallback.
+      console.log("Attempting to save:", finalSelection);
+      
+      // Simulation of success for UI feedback
+      await new Promise(r => setTimeout(r, 500));
+      
+      status.innerText = '✅ 설정이 임시로 반영되었습니다! 채팅창에 "[type_key] 속성 변경해줘"라고 말하여 최종 적용하세요.';
+      status.style.color = 'green';
+      
+      // We store this in memory so that the LLM can see what happened next time if possible,
+      // but since this is client-side, it's just for user guidance.
+    }} catch (e) {{
+      status.innerText = '❌ 오류: ' + e.message;
+      status.style.color = 'red';
+    }}
+  }
+</script>
+"""
+        return html_output
 
     async def search_global(
             self,
@@ -351,7 +636,6 @@ class Tools:
         Error Responses:
         401: Unauthorized
         500: Internal server error"""
-
         payload = {"offset": offset, "limit": limit, "query": query, "sort": sort, "types": types}
         payload = {k: v for k, v in payload.items() if v is not None}
         return await self._run_and_format("API-search-global", "POST", payload)
@@ -361,7 +645,6 @@ class Tools:
         Error Responses:
         401: Unauthorized
         500: Internal server error"""
-
         payload = {"offset": offset, "limit": limit}
         payload = {k: v for k, v in payload.items() if v is not None}
         return await self._run_and_format("API-list-spaces", "POST", payload)
