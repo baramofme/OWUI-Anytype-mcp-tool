@@ -1,0 +1,279 @@
+{
+  "object": {
+    "object": "object",
+    "id": "bafyreibczffwhohqe2amg65ukip7kbbqirg4upzvjeckewfw6mwh5wp7ce",
+    "name": "추잰위 신통 동의서 작성 방문 약속 _20:00",
+    "icon": null,
+    "archived": false,
+    "space_id": "bafyreiacibr3qyhhbsba4zogspex2l46drdqkt7qtt3unyuyyfvxzfatxy.2uck3k7ub1oi4",
+    "snippet": "세부내역\n작업 기대와 결과\n기대\n결과\n할일과 이슈\n할일\n이슈\n작업 일지",
+    "layout": "action",
+    "type": {
+      "object": "type",
+      "id": "bafyreie3phnmulqj6bcmqjkuzyxht6gejx4ywvshox2pddjgfulcd4zgoa",
+      "key": "task",
+      "name": "Task",
+      "plural_name": "Tasks",
+      "icon": {
+        "format": "icon",
+        "name": "checkbox",
+        "color": "lime"
+      },
+      "archived": false,
+      "layout": "action",
+      "properties": [
+        {
+          "object": "property",
+          "id": "bafyreihlgduh4jbr54i55ra5dkcypcgnacwockr7u62bq45bp7vetmauua",
+          "key": "gaein/il",
+          "name": "개인/일",
+          "format": "select"
+        },
+        {
+          "object": "property",
+          "id": "bafyreial7l7h2vydrb4elit62sjvfd2mqtytw4z4m542lhbi7gsjv4crki",
+          "key": "sigangugan",
+          "name": "시간구간",
+          "format": "select"
+        },
+        {
+          "object": "property",
+          "id": "bafyreihlvhphgqvcutk7oovygr7qule2gtf2pjarvtvzbbt5ljykqcyire",
+          "key": "backlinks",
+          "name": "Backlinks",
+          "format": "objects"
+        },
+        {
+          "object": "property",
+          "id": "bafyreiarayo4eqhhb4chtonbzha2oanfotbcfmmj7ttjt2mwpnz5yvj3gy",
+          "key": "tag",
+          "name": "Tag",
+          "format": "multi_select"
+        },
+        {
+          "object": "property",
+          "id": "bafyreif6y5573byigu27xulz5hwutb6v7byopcm2456gxvx3z25xfjozwm",
+          "key": "silje_wanryoil",
+          "name": "실제 완료일",
+          "format": "date"
+        },
+        {
+          "object": "property",
+          "id": "bafyreidz2j2auslz732ie4o27rudxe3cavjiiathzcrapk46k54764puxy",
+          "key": "due_date",
+          "name": "달력 목표일",
+          "format": "date"
+        },
+        {
+          "object": "property",
+          "id": "bafyreibxshgviomictvi23ahxsnzpidnpzkqm4qrw4k37wsgkoth6zcgjy",
+          "key": "assignee",
+          "name": "Assignee",
+          "format": "objects"
+        },
+        {
+          "object": "property",
+          "id": "bafyreicjwlqxjhysfacfvm64me6tv4ftd7whggunzjrwqmu6ctutpnwnp4",
+          "key": "done",
+          "name": "Done",
+          "format": "checkbox"
+        },
+        {
+          "object": "property",
+          "id": "bafyreiau7jf6pcslpabwk4g24smmdu4gr2hs5f4hbbtli3eru2oqinqyrq",
+          "key": "sijagil",
+          "name": "시작일",
+          "format": "date"
+        },
+        {
+          "object": "property",
+          "id": "bafyreiewzee4t34aroyps5zk56bc2zgv5s5lerpiarqtf7mo3nkyxnvyha",
+          "key": "due_date",
+          "name": "Due date",
+          "format": "date"
+        },
+        {
+          "object": "property",
+          "id": "bafyreig4ydf4oryi5ngwzs4ibbbvqawqqdi5da2alrkavmuo7kdj4fyuqa",
+          "key": "linked_projects",
+          "name": "연결된 목표",
+          "format": "objects"
+        },
+        {
+          "object": "property",
+          "id": "bafyreic7yanabgxhqayjonbakdmcsgsb6f5gn7nwi4rzyhnbbjseyzuwbi",
+          "key": "status",
+          "name": "진행상태",
+          "format": "select"
+        },
+        {
+          "object": "property",
+          "id": "bafyreicgalgki7zbr7e3r57id6xyxqiwtn4b7qaeslsavzvq3cvulo66cq",
+          "key": "linked_projects",
+          "name": "연결된 플젝",
+          "format": "objects"
+        },
+        {
+          "object": "property",
+          "id": "bafyreicjbgfwhmha35ik34y4kdptdetvwhoedxboum3v2o2zyrnkbgfxye",
+          "key": "created_date",
+          "name": "Creation date",
+          "format": "date"
+        },
+        {
+          "object": "property",
+          "id": "bafyreiaf5kouybzjjrcyorfbmyoadtiphdr7l2kntnwbx4a5z4dwkrbo3u",
+          "key": "creator",
+          "name": "Created by",
+          "format": "objects"
+        },
+        {
+          "object": "property",
+          "id": "bafyreibal4wbqohezgwsdpqdrjjnli3cttdabv4bzq6q5vzievyj52rfhq",
+          "key": "links",
+          "name": "Links",
+          "format": "objects"
+        }
+      ]
+    },
+    "properties": [
+      {
+        "object": "property",
+        "id": "bafyreihomwkxocgra6xallq5mbpf4dbtvvkqcyo2ychtqowya2iuhrcaay",
+        "key": "description",
+        "name": "Description",
+        "format": "text",
+        "text": ""
+      },
+      {
+        "object": "property",
+        "id": "bafyreic7yanabgxhqayjonbakdmcsgsb6f5gn7nwi4rzyhnbbjseyzuwbi",
+        "key": "status",
+        "name": "진행상태",
+        "format": "select",
+        "select": {
+          "object": "tag",
+          "id": "bafyreicupmd37cyc4isyn3pvpvycyurwst3nf2nuht57ayfctdty4v6r6a",
+          "key": "63454ad0c493f68e301890db",
+          "name": "할것",
+          "color": "ice"
+        }
+      },
+      {
+        "object": "property",
+        "id": "bafyreihlgduh4jbr54i55ra5dkcypcgnacwockr7u62bq45bp7vetmauua",
+        "key": "gaein/il",
+        "name": "개인/일",
+        "format": "select",
+        "select": {
+          "object": "tag",
+          "id": "bafyreiaoqxhp53c3iw76lhsbmcexurxwcj2xn6fsykimy42zrsmfxs36xq",
+          "key": "gaein",
+          "name": "개인",
+          "color": "orange"
+        }
+      },
+      {
+        "object": "property",
+        "id": "bafyreig4ydf4oryi5ngwzs4ibbbvqawqqdi5da2alrkavmuo7kdj4fyuqa",
+        "key": "linked_projects",
+        "name": "연결된 목표",
+        "format": "objects",
+        "objects": null
+      },
+      {
+        "object": "property",
+        "id": "bafyreicgalgki7zbr7e3r57id6xyxqiwtn4b7qaeslsavzvq3cvulo66cq",
+        "key": "linked_projects",
+        "name": "연결된 플젝",
+        "format": "objects",
+        "objects": null
+      },
+      {
+        "object": "property",
+        "id": "bafyreicjbgfwhmha35ik34y4kdptdetvwhoedxboum3v2o2zyrnkbgfxye",
+        "key": "created_date",
+        "name": "Creation date",
+        "format": "date",
+        "date": "2026-04-28T10:15:07Z"
+      },
+      {
+        "object": "property",
+        "id": "bafyreig3d34s5eq3n64g7oiofzwuv4364xznw2lgx7mkimeqyavou36x5u",
+        "key": "last_modified_by",
+        "name": "Last modified by",
+        "format": "objects",
+        "objects": [
+          "_participant_bafyreiacibr3qyhhbsba4zogspex2l46drdqkt7qtt3unyuyyfvxzfatxy_2uck3k7ub1oi4_A8Gg6eAZJL38eJEEttmphrZZZdo178Vxhq8ToqRC7TwCNk91"
+        ]
+      },
+      {
+        "object": "property",
+        "id": "bafyreiau7jf6pcslpabwk4g24smmdu4gr2hs5f4hbbtli3eru2oqinqyrq",
+        "key": "sijagil",
+        "name": "시작일",
+        "format": "date",
+        "date": "2026-04-29T15:00:00Z"
+      },
+      {
+        "object": "property",
+        "id": "bafyreicjwlqxjhysfacfvm64me6tv4ftd7whggunzjrwqmu6ctutpnwnp4",
+        "key": "done",
+        "name": "Done",
+        "format": "checkbox",
+        "checkbox": false
+      },
+      {
+        "object": "property",
+        "id": "bafyreibal4wbqohezgwsdpqdrjjnli3cttdabv4bzq6q5vzievyj52rfhq",
+        "key": "links",
+        "name": "Links",
+        "format": "objects",
+        "objects": null
+      },
+      {
+        "object": "property",
+        "id": "bafyreiaigwecjlof3rsltnxup4lpwyo7krj2u2ln5huctmnuygq3qkyphi",
+        "key": "creator",
+        "name": "Contributor",
+        "format": "objects",
+        "objects": [
+          "_participant_bafyreiacibr3qyhhbsba4zogspex2l46drdqkt7qtt3unyuyyfvxzfatxy_2uck3k7ub1oi4_A8Gg6eAZJL38eJEEttmphrZZZdo178Vxhq8ToqRC7TwCNk91"
+        ]
+      },
+      {
+        "object": "property",
+        "id": "bafyreiarevsgqjlwihah6kr6bwcvihprfucyzpvglpn6duj4wzadfgn6lu",
+        "key": "last_modified_date",
+        "name": "Last modified date",
+        "format": "date",
+        "date": "2026-04-28T10:16:30Z"
+      },
+      {
+        "object": "property",
+        "id": "bafyreiewzee4t34aroyps5zk56bc2zgv5s5lerpiarqtf7mo3nkyxnvyha",
+        "key": "due_date",
+        "name": "Due date",
+        "format": "date",
+        "date": "2026-04-29T15:00:00Z"
+      },
+      {
+        "object": "property",
+        "id": "bafyreidz2j2auslz732ie4o27rudxe3cavjiiathzcrapk46k54764puxy",
+        "key": "due_date",
+        "name": "달력 목표일",
+        "format": "date",
+        "date": "2026-04-29T15:00:00Z"
+      },
+      {
+        "object": "property",
+        "id": "bafyreihlvhphgqvcutk7oovygr7qule2gtf2pjarvtvzbbt5ljykqcyire",
+        "key": "backlinks",
+        "name": "Backlinks",
+        "format": "objects",
+        "objects": null
+      }
+    ],
+    "markdown": "## 세부내역    \n --- \n### 작업 기대와 결과   \n    기대   \n       \n    결과   \n       \n### 할일과 이슈   \n할일   \n   \n이슈   \n   \n### 작업 일지   \n   \n"
+  }
+}

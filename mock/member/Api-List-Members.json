@@ -1,0 +1,30 @@
+{
+  "data": [
+    {
+      "object": "member",
+      "id": "_participant_bafyreiacibr3qyhhbsba4zogspex2l46drdqkt7qtt3unyuyyfvxzfatxy_2uck3k7ub1oi4_A6zJdpWfWycaK8iARLbTTXEUwz5xoL51esaj3bhy3VgzxWWF",
+      "name": "owui",
+      "icon": null,
+      "identity": "A6zJdpWfWycaK8iARLbTTXEUwz5xoL51esaj3bhy3VgzxWWF",
+      "global_name": "",
+      "status": "active",
+      "role": "editor"
+    },
+    {
+      "object": "member",
+      "id": "_participant_bafyreiacibr3qyhhbsba4zogspex2l46drdqkt7qtt3unyuyyfvxzfatxy_2uck3k7ub1oi4_A8Gg6eAZJL38eJEEttmphrZZZdo178Vxhq8ToqRC7TwCNk91",
+      "name": "이지훈",
+      "icon": null,
+      "identity": "A8Gg6eAZJL38eJEEttmphrZZZdo178Vxhq8ToqRC7TwCNk91",
+      "global_name": "",
+      "status": "active",
+      "role": "owner"
+    }
+  ],
+  "pagination": {
+    "total": 2,
+    "offset": 0,
+    "limit": 50,
+    "has_more": false
+  }
+}

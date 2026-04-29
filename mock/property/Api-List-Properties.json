@@ -1,0 +1,360 @@
+{
+  "data": [
+    {
+      "object": "property",
+      "id": "bafyreidrw633qwmtfzj45oiekioodzoatti2xjpal2h2dy3l2aemtwjayi",
+      "key": "account_confidentiality",
+      "name": "Account confidentiality",
+      "format": "select"
+    },
+    {
+      "object": "property",
+      "id": "bafyreieg6euo2xmctwug3kcme2nwqzyocrhi5zescrgwsyehmuvzqokgce",
+      "key": "account_flag",
+      "name": "Account flag",
+      "format": "multi_select"
+    },
+    {
+      "object": "property",
+      "id": "bafyreigcrdavhax6etxnabktwnbbjvwtxf7eacohwxaghcee6c5ipswpc4",
+      "key": "account_number",
+      "name": "Account number",
+      "format": "text"
+    },
+    {
+      "object": "property",
+      "id": "bafyreibsfk3iwb2a4whk74tmorzxfjg5budlhwu4c7ckjkizstlnqva7oq",
+      "key": "account_status",
+      "name": "Account status",
+      "format": "select"
+    },
+    {
+      "object": "property",
+      "id": "bafyreicniuhsrj25ypjf36z7pxpy2kl5bbnlxmjjt23hwkhobgyzgidpkq",
+      "key": "account_tier",
+      "name": "Account tier",
+      "format": "text"
+    },
+    {
+      "object": "property",
+      "id": "bafyreiaevf6wf6hgdjlyqyg2tilecsstxesaurcolxzysmog3bgzpvihpu",
+      "key": "account_type",
+      "name": "Account type",
+      "format": "multi_select"
+    },
+    {
+      "object": "property",
+      "id": "bafyreicqc4mmarwhgxkougrspprmhs4uyhggbqfrg5ng764xtaig6utzem",
+      "key": "account",
+      "name": "Account",
+      "format": "objects"
+    },
+    {
+      "object": "property",
+      "id": "bafyreieodnz7srgfikl2sv4bcxwmyblwvu5mql7v3kdmuohnps4qno4zg4",
+      "key": "activity_area",
+      "name": "Activity area",
+      "format": "multi_select"
+    },
+    {
+      "object": "property",
+      "id": "bafyreigkj74sgndzamary7m743jysc2yk2pvu5gnfparvx35hzxtea7l2u",
+      "key": "activity_frequency",
+      "name": "Activity frequency",
+      "format": "select"
+    },
+    {
+      "object": "property",
+      "id": "bafyreid6bl4mz23v7vldoio3iu6yyyj3afr4xkuinmjthbje6ira7fgw44",
+      "key": "activity_importance",
+      "name": "Activity importance",
+      "format": "select"
+    },
+    {
+      "object": "property",
+      "id": "bafyreiah5tetn223jv4kw4cxco3jf7hitkphe6imarnug5yylucnvljam4",
+      "key": "activity_load",
+      "name": "Activity load",
+      "format": "select"
+    },
+    {
+      "object": "property",
+      "id": "bafyreid3znhwizlccfamnm4armjmzjkjdi4kkhqfngjaem64m377nlcwkq",
+      "key": "activity_performance",
+      "name": "Activity performance",
+      "format": "select"
+    },
+    {
+      "object": "property",
+      "id": "bafyreifvki6rgabde7i272snf2ajxgjcjpciqlbzsrd6gopb7qr6vzxulm",
+      "key": "activity_sentiment",
+      "name": "Activity sentiment",
+      "format": "select"
+    },
+    {
+      "object": "property",
+      "id": "bafyreia4amcpkvdr7dxjiohcnnl4wxcgaipqucgabdi2juegzxpsfreuby",
+      "key": "added_date",
+      "name": "Added date",
+      "format": "date"
+    },
+    {
+      "object": "property",
+      "id": "bafyreidjnzcqkxtmzec4sl7ouu7ot4ajpdhr5j25y2bbyx6ympkuv25p4y",
+      "key": "trustee",
+      "name": "Advisor",
+      "format": "objects"
+    },
+    {
+      "object": "property",
+      "id": "bafyreig7emm6ifvbbx7uzyolalzrtllpqorui555ouqmmp3nrifjn6uqxm",
+      "key": "audio_album",
+      "name": "Album",
+      "format": "text"
+    },
+    {
+      "object": "property",
+      "id": "bafyreib5vvrshm5bjkhyj4skjzpbzah5c75aq5etru5xjfm63ciwnmwbb4",
+      "key": "alias",
+      "name": "Alias",
+      "format": "text"
+    },
+    {
+      "object": "property",
+      "id": "bafyreifvvmdpy6f5ezbyvuahctvsek5bdi4jvv6j5v2fmk4jcx6onbmusa",
+      "key": "artist",
+      "name": "Artist",
+      "format": "text"
+    },
+    {
+      "object": "property",
+      "id": "bafyreiakqtxmgkq2jg37xq27wjrdihq3s7ylrfpvtlcbxuskcbs332ocpy",
+      "key": "asset_category",
+      "name": "Asset category",
+      "format": "multi_select"
+    },
+    {
+      "object": "property",
+      "id": "bafyreigxh2bw7yxzikvgbhxzknproij6xptripb7rt4js35tc5bda32r6y",
+      "key": "durability",
+      "name": "Asset durability",
+      "format": "select"
+    },
+    {
+      "object": "property",
+      "id": "bafyreifzdcxzqqcrjkqymkciwibkqciid5d7hv6aoyacxbxvqaws42pq6q",
+      "key": "asset_origin",
+      "name": "Asset origin",
+      "format": "objects"
+    },
+    {
+      "object": "property",
+      "id": "bafyreibuh7olzvnzhfxdz7nebjp7klunpggrgji7sr3gb5h4qigazzjo6u",
+      "key": "asset_tangibility",
+      "name": "Asset tangibility",
+      "format": "select"
+    },
+    {
+      "object": "property",
+      "id": "bafyreigwkm3aq2vwkkoaftr7vvrrpi2fpaxcwn3p2i66y22vot7ge445lu",
+      "key": "asset_type",
+      "name": "Asset type",
+      "format": "multi_select"
+    },
+    {
+      "object": "property",
+      "id": "bafyreibxshgviomictvi23ahxsnzpidnpzkqm4qrw4k37wsgkoth6zcgjy",
+      "key": "assignee",
+      "name": "Assignee",
+      "format": "objects"
+    },
+    {
+      "object": "property",
+      "id": "bafyreicft6hqpmbo2r7als5huc4d6hg66bkiqsnttr2ki464mi6gkxh65u",
+      "key": "attachments",
+      "name": "Attachments",
+      "format": "files"
+    },
+    {
+      "object": "property",
+      "id": "bafyreibxee5dvr2gy4bnr6lnz2kf35vzyrkm35e7mlngp42tvbkslyzsui",
+      "key": "owners",
+      "name": "Authorized user",
+      "format": "objects"
+    },
+    {
+      "object": "property",
+      "id": "bafyreibf2ltm6focxqnbkmumi55vblbule32vtrrycjtziymhtmwzmqxiq",
+      "key": "awarding_body",
+      "name": "Awarding body",
+      "format": "text"
+    },
+    {
+      "object": "property",
+      "id": "bafyreihlvhphgqvcutk7oovygr7qule2gtf2pjarvtvzbbt5ljykqcyire",
+      "key": "backlinks",
+      "name": "Backlinks",
+      "format": "objects"
+    },
+    {
+      "object": "property",
+      "id": "bafyreie5pdwwyrzawj45cnvczaigltd6rkxy2jaouf7fym7rdxo3w36l6u",
+      "key": "maximum_balance",
+      "name": "Balance maximum",
+      "format": "number"
+    },
+    {
+      "object": "property",
+      "id": "bafyreif6xme2y6cxtnr4e77ym46yanoinb3fehri2lmvo74orgkcwfxv4u",
+      "key": "minimum_balance",
+      "name": "Balance minimum",
+      "format": "number"
+    },
+    {
+      "object": "property",
+      "id": "bafyreigl77bqaoempczok7ufdjm3otkd2ldajmvbkxwu5du7eps6ha3qnq",
+      "key": "balance",
+      "name": "Balance",
+      "format": "number"
+    },
+    {
+      "object": "property",
+      "id": "bafyreidebcsm7nobm3ox6l2eost2dt333c5lji6su6enl4zo3ulri4zcpi",
+      "key": "authorized_user",
+      "name": "Beneficiary",
+      "format": "objects"
+    },
+    {
+      "object": "property",
+      "id": "bafyreibyndm3rys2gywc55dsdvnlnjjj3zqabxq6c3czjuraf46oscka7m",
+      "key": "body_modification_color",
+      "name": "Body modification color",
+      "format": "select"
+    },
+    {
+      "object": "property",
+      "id": "bafyreidozkawhrmleh4tn3zuh2uxx6g3clvve4veya3ke7leibtcso7a4q",
+      "key": "body_modification_longevity",
+      "name": "Body modification longevity",
+      "format": "select"
+    },
+    {
+      "object": "property",
+      "id": "bafyreiarumvuqg3rrnvvtj7lqudhaw3u5bh3uctfhfht6ajvjn6qay4bfa",
+      "key": "body_modification_part",
+      "name": "Body modification part",
+      "format": "select"
+    },
+    {
+      "object": "property",
+      "id": "bafyreidth4jx37nqax27tus3leewzrsj7nid3xiaq3xwrmks6ea2qy4axm",
+      "key": "body_modification_purpose",
+      "name": "Body modification purpose",
+      "format": "multi_select"
+    },
+    {
+      "object": "property",
+      "id": "bafyreib72k6o5ci5mowlplvlacpau4einvnzeqspz7zp7vtn7gsm2b43re",
+      "key": "body_modification_style",
+      "name": "Body modification style",
+      "format": "multi_select"
+    },
+    {
+      "object": "property",
+      "id": "bafyreig7hr4s6zmgkn6pslaa6awwt7x4qu2yneg7zsncghttj2lt7rscdy",
+      "key": "body_modification_technology",
+      "name": "Body modification technology",
+      "format": "text"
+    },
+    {
+      "object": "property",
+      "id": "bafyreiejppgdcjok4mdzm5rcp4dq4jic2524c5qn7wqu5kcxvqf667qudy",
+      "key": "body_mofication_type",
+      "name": "Body mofication type",
+      "format": "select"
+    },
+    {
+      "object": "property",
+      "id": "bafyreifyqs5o4qzxcxreayjjhpwyvyaxwg2cxijalmvlnwvz3w6olcs6jy",
+      "key": "book",
+      "name": "Book",
+      "format": "objects"
+    },
+    {
+      "object": "property",
+      "id": "bafyreiebxn7xpzbnlqkrueopsrgfikv7mxpa6omhpjmlzrdpc63wsu2mtu",
+      "key": "brand_relation",
+      "name": "Brand relation",
+      "format": "multi_select"
+    },
+    {
+      "object": "property",
+      "id": "bafyreidh6u2ambpmfvzrdilmvrz27xp3utgyrcvijyfmdjgs6dkxjahfjm",
+      "key": "brand",
+      "name": "Brand",
+      "format": "objects"
+    },
+    {
+      "object": "property",
+      "id": "bafyreieyzxon3xslfdkswne67nqdc7udevoqnhiieailsqpebwb4r2wocu",
+      "key": "aperture",
+      "name": "Camera aperture",
+      "format": "text"
+    },
+    {
+      "object": "property",
+      "id": "bafyreif3sije7c5vzylqy6qke74ynnpz6lim7n6tkpdjyiw7t5ek4zk65e",
+      "key": "exposure",
+      "name": "Camera exposure",
+      "format": "text"
+    },
+    {
+      "object": "property",
+      "id": "bafyreifeetztp4mtsa7s4lzwavddlk7rseycavuf5aiaulhnu6udjwat7u",
+      "key": "camera",
+      "name": "Camera",
+      "format": "text"
+    },
+    {
+      "object": "property",
+      "id": "bafyreickssviabanz36g4bxkjk6pycwnpv4y3qjn27wte2nqmhlfsi7leq",
+      "key": "category_group",
+      "name": "Category group",
+      "format": "text"
+    },
+    {
+      "object": "property",
+      "id": "bafyreihyu6bwegxbenugg75qzwpxc2pllae56krazqf7ft3kuvodyebsxe",
+      "key": "category",
+      "name": "Category",
+      "format": "objects"
+    },
+    {
+      "object": "property",
+      "id": "bafyreidpq4lvel4bhcvfrmbst4ztcen62vlikaawhgiqkiuww3oiwjvw5u",
+      "key": "channel_lifecycle",
+      "name": "Channel lifecycle",
+      "format": "select"
+    },
+    {
+      "object": "property",
+      "id": "bafyreiachabmlecdrzalzri3cjxvludnvtoszdr6jshcbm2emwczbji47u",
+      "key": "channel_status",
+      "name": "Channel status",
+      "format": "select"
+    },
+    {
+      "object": "property",
+      "id": "bafyreicr46zmex5um3mmof6plsw2sa55hd3obzrd4um56m7afe3ss4z6ym",
+      "key": "channel",
+      "name": "Channel",
+      "format": "objects"
+    }
+  ],
+  "pagination": {
+    "total": 378,
+    "offset": 0,
+    "limit": 50,
+    "has_more": true
+  }
+}

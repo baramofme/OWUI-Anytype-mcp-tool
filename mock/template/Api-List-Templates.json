@@ -1,0 +1,143 @@
+{
+  "data": [
+    {
+      "object": "object",
+      "id": "bafyreiandvtytdff6lzogzy5qmgtwbo6ll5r3obezbwy7o5lngrdor3rzy",
+      "name": "Account template",
+      "icon": null,
+      "archived": false,
+      "space_id": "bafyreiacibr3qyhhbsba4zogspex2l46drdqkt7qtt3unyuyyfvxzfatxy.2uck3k7ub1oi4",
+      "snippet": "",
+      "layout": "collection",
+      "type": {
+        "object": "type",
+        "id": "bafyreic4kctohtfgqoamlb4ipsf4qchrarwbf5acits53dxsvffolnsbx4",
+        "key": "template",
+        "name": "Template",
+        "plural_name": "Templates",
+        "icon": {
+          "format": "icon",
+          "name": "copy",
+          "color": "ice"
+        },
+        "archived": false,
+        "layout": "basic",
+        "properties": [
+          {
+            "object": "property",
+            "id": "bafyreihlvhphgqvcutk7oovygr7qule2gtf2pjarvtvzbbt5ljykqcyire",
+            "key": "backlinks",
+            "name": "Backlinks",
+            "format": "objects"
+          },
+          {
+            "object": "property",
+            "id": "bafyreiarayo4eqhhb4chtonbzha2oanfotbcfmmj7ttjt2mwpnz5yvj3gy",
+            "key": "tag",
+            "name": "Tag",
+            "format": "multi_select"
+          },
+          {
+            "object": "property",
+            "id": "bafyreicjbgfwhmha35ik34y4kdptdetvwhoedxboum3v2o2zyrnkbgfxye",
+            "key": "created_date",
+            "name": "Creation date",
+            "format": "date"
+          },
+          {
+            "object": "property",
+            "id": "bafyreiaf5kouybzjjrcyorfbmyoadtiphdr7l2kntnwbx4a5z4dwkrbo3u",
+            "key": "creator",
+            "name": "Created by",
+            "format": "objects"
+          },
+          {
+            "object": "property",
+            "id": "bafyreibal4wbqohezgwsdpqdrjjnli3cttdabv4bzq6q5vzievyj52rfhq",
+            "key": "links",
+            "name": "Links",
+            "format": "objects"
+          }
+        ]
+      },
+      "properties": [
+        {
+          "object": "property",
+          "id": "bafyreibal4wbqohezgwsdpqdrjjnli3cttdabv4bzq6q5vzievyj52rfhq",
+          "key": "links",
+          "name": "Links",
+          "format": "objects",
+          "objects": null
+        },
+        {
+          "object": "property",
+          "id": "bafyreihlctxdofvise25oaqjxz5phbjlocl6kemfdxj3oixadmt6kiikay",
+          "key": "note",
+          "name": "기록",
+          "format": "text",
+          "text": "Short note"
+        },
+        {
+          "object": "property",
+          "id": "bafyreiaigwecjlof3rsltnxup4lpwyo7krj2u2ln5huctmnuygq3qkyphi",
+          "key": "creator",
+          "name": "Contributor",
+          "format": "objects",
+          "objects": [
+            "_participant_bafyreiacibr3qyhhbsba4zogspex2l46drdqkt7qtt3unyuyyfvxzfatxy_2uck3k7ub1oi4_A8Gg6eAZJL38eJEEttmphrZZZdo178Vxhq8ToqRC7TwCNk91"
+          ]
+        },
+        {
+          "object": "property",
+          "id": "bafyreia4amcpkvdr7dxjiohcnnl4wxcgaipqucgabdi2juegzxpsfreuby",
+          "key": "added_date",
+          "name": "Added date",
+          "format": "date",
+          "date": "2026-03-26T14:11:09Z"
+        },
+        {
+          "object": "property",
+          "id": "bafyreihomwkxocgra6xallq5mbpf4dbtvvkqcyo2ychtqowya2iuhrcaay",
+          "key": "description",
+          "name": "Description",
+          "format": "text",
+          "text": "Description for account"
+        },
+        {
+          "object": "property",
+          "id": "bafyreihlvhphgqvcutk7oovygr7qule2gtf2pjarvtvzbbt5ljykqcyire",
+          "key": "backlinks",
+          "name": "Backlinks",
+          "format": "objects",
+          "objects": [
+            "bafyreicdrkr4cpwj5hxy4agypqtc752klqoftkb3rgdvssefeuvfztgwhq"
+          ]
+        },
+        {
+          "object": "property",
+          "id": "bafyreicjbgfwhmha35ik34y4kdptdetvwhoedxboum3v2o2zyrnkbgfxye",
+          "key": "created_date",
+          "name": "Creation date",
+          "format": "date",
+          "date": "2026-03-26T14:11:07Z"
+        },
+        {
+          "object": "property",
+          "id": "bafyreig3d34s5eq3n64g7oiofzwuv4364xznw2lgx7mkimeqyavou36x5u",
+          "key": "last_modified_by",
+          "name": "Last modified by",
+          "format": "objects",
+          "objects": [
+            "_participant_bafyreiacibr3qyhhbsba4zogspex2l46drdqkt7qtt3unyuyyfvxzfatxy_2uck3k7ub1oi4_"
+          ]
+        }
+      ]
+    }
+  ],
+  "pagination": {
+    "total": 1,
+    "offset": 0,
+    "limit": 50,
+    "has_more": false
+  }
+}
