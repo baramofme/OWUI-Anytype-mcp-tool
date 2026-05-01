@@ -20,20 +20,16 @@ from pydantic import BaseModel, Field
 try:
     from fastapi.responses import HTMLResponse
 except ImportError:
-
     class HTMLResponse:
         def __init__(self, content: str, headers: dict = None):
             self._content = content
             self._headers = headers or {}
-
         @property
         def body(self) -> bytes:
             return self._content.encode("utf-8")
-
         @property
         def headers(self) -> dict:
             return self._headers
-
         @property
         def status_code(self) -> int:
             return 200
@@ -58,11 +54,11 @@ class ProxyClient:
         self.base_url = base_url.rstrip("/")
 
     async def request(
-        self,
-        method: str,
-        endpoint: str,
-        payload: Dict[str, Any],
-        headers: Dict[str, str],
+            self,
+            method: str,
+            endpoint: str,
+            payload: Dict[str, Any],
+            headers: Dict[str, str],
     ) -> Dict[str, Any]:
         url = f"{self.base_url}/{endpoint}"
         async with httpx.AsyncClient() as client:
@@ -107,12 +103,10 @@ class FlatteningService:
             exclude_config = {}
 
         # 1. Identify unique type_keys present in data
-        present_types = {
-            row["type_key"] for row in rows if "type_key" in row and row["type_key"]
-        }
-
+        present_types = {row["type_key"] for row in rows if "type_key" in row and row["type_key"]}
+        
         if not present_types:
-            return []
+             return []
 
         target_columns_set = set()
 
@@ -122,9 +116,7 @@ class FlatteningService:
                 target_columns_set = set(display_config[t_key])
             else:
                 # Fallback: All columns that appear in objects of this specific type
-                target_columns_set = {
-                    k for r in rows if r.get("type_key") == t_key for k in r.keys()
-                }
+                target_columns_set = {k for r in rows if r.get("type_key") == t_key for k in r.keys()}
         else:
             # Mixed types logic: Intersection of whitelists
             intersection_sets = []
@@ -133,11 +125,9 @@ class FlatteningService:
                     intersection_sets.append(set(display_config[t_key]))
                 else:
                     # For a type with NO whitelist defined, its potential is everything it has
-                    type_specific_cols = {
-                        k for r in rows if r.get("type_key") == t_key for k in r.keys()
-                    }
+                    type_specific_cols = {k for r in rows if r.get("type_key") == t_key for k in r.keys()}
                     intersection_sets.append(type_specific_cols)
-
+            
             if intersection_sets:
                 target_columns_set = set.intersection(*intersection_sets)
             else:
@@ -147,25 +137,15 @@ class FlatteningService:
         blacklist = exclude_config.get("all", [])
         if isinstance(blacklist, list):
             target_columns_set = target_columns_set - set(blacklist)
-
+        
         # 3. Handle Metadata Visibility
         if not self.valves.show_context_metadata:
-            meta_keys = {
-                "object",
-                "id",
-                "space_id",
-                "layout",
-                "archived",
-                "type_id",
-                "type_key",
-            }
+            meta_keys = {"object", "id", "space_id", "layout", "archived", "type_id", "type_key"}
             target_columns_set = target_columns_set - meta_keys
 
         return sorted(list(target_columns_set))
 
-    def _apply_filter(
-        self, rows: List[Dict[str, Any]], effective_columns: List[str]
-    ) -> List[Dict[str, Any]]:
+    def _apply_filter(self, rows: List[Dict[str, Any]], effective_columns: List[str]) -> List[Dict[str, Any]]:
         filtered_rows = []
         for row in rows:
             aligned_row = {k: row[k] for k in effective_columns if k in row}
@@ -176,17 +156,15 @@ class FlatteningService:
         """Converts ISO UTC string to KST (UTC+9) in YYYY-MM-DD HH:mm:ss format."""
         try:
             # Handle 'Z' suffix for UTC
-            clean_str = utc_str.replace("Z", "+00:00")
+            clean_str = utc_str.replace('Z', '+00:00')
             dt = datetime.fromisoformat(clean_str)
             kst_tz = timezone(timedelta(hours=9))
             kst_dt = dt.astimezone(kst_tz)
-            return kst_dt.strftime("%Y-%m-%d %H:%M:%S")
+            return kst_dt.strftime('%Y-%m-%d %H:%M:%S')
         except Exception:
             return utc_str
 
-    async def _resolve_object_names(
-        self, ids: List[str], space_id: str, proxy: ProxyClient, headers: Dict[str, str]
-    ) -> str:
+    async def _resolve_object_names(self, ids: List[str], space_id: str, proxy: ProxyClient, headers: Dict[str, str]) -> str:
         """Asynchronously fetches names for a list of object IDs using API-get-object."""
         if not ids or not space_id:
             return "; ".join(map(str, ids))
@@ -195,15 +173,11 @@ class FlatteningService:
             try:
                 payload = {"space_id": space_id, "object_id": obj_id}
                 resp = await proxy.request("POST", "API-get-object", payload, headers)
-
+                
                 if isinstance(resp, dict):
                     if "name" in resp:
                         return str(resp["name"])
-                    if (
-                        "data" in resp
-                        and isinstance(resp["data"], dict)
-                        and "name" in resp["data"]
-                    ):
+                    if "data" in resp and isinstance(resp["data"], dict) and "name" in resp["data"]:
                         return str(resp["data"]["name"])
                 return str(obj_id)
             except Exception:
@@ -213,9 +187,7 @@ class FlatteningService:
         results = await asyncio.gather(*tasks)
         return "; ".join(results)
 
-    async def flatten_data(
-        self, raw_data: Dict[str, Any], proxy: ProxyClient, api_key: str
-    ) -> tuple[List[Dict[str, Any]], Dict[str, Any]]:
+    async def flatten_data(self, raw_data: Dict[str, Any], proxy: ProxyClient, api_key: str) -> tuple[List[Dict[str, Any]], Dict[str, Any]]:
         headers = AuthManager.get_headers(api_key)
         items = []
         pagination = {}
@@ -258,12 +230,10 @@ class FlatteningService:
 
         effective_columns = self._get_effective_columns(flattened_rows)
         final_rows = self._apply_filter(flattened_rows, effective_columns)
-
+            
         return final_rows, pagination
 
-    async def _process_item(
-        self, item: Dict[str, Any], proxy: ProxyClient, headers: Dict[str, str]
-    ) -> Dict[str, Any]:
+    async def _process_item(self, item: Dict[str, Any], proxy: ProxyClient, headers: Dict[str, str]) -> Dict[str, Any]:
         """Processes an individual item into a unified schema-aware flat dictionary (Data + Context merged)."""
         if not isinstance(item, dict):
             return {"value": str(item)}
@@ -273,7 +243,7 @@ class FlatteningService:
         # --- STEP 1: [Context] Structural Metadata ---
         type_obj = item.get("type", {})
         is_type_dict = isinstance(type_obj, dict)
-
+        
         context_fields = {
             "object": item.get("object"),
             "id": item.get("id"),
@@ -289,7 +259,7 @@ class FlatteningService:
         # Core Identity
         unified_row["name"] = item.get("name")
         if is_type_dict and "name" in type_obj:
-            unified_row["type"] = type_obj["name"]  # Rule: "type": "TypeName"
+            unified_row["type"] = type_obj["name"] # Rule: "type": "TypeName"
 
         # Process Properties using Universal Rules
         properties_list = item.get("properties", [])
@@ -307,18 +277,12 @@ class FlatteningService:
                         obj_ids = prop.get("objects", [])
                         parent_sid = item.get("space_id")
                         if obj_ids and parent_sid:
-                            val = await self._resolve_object_names(
-                                obj_ids, parent_sid, proxy, headers
-                            )
+                            val = await self._resolve_object_names(obj_ids, parent_sid, proxy, headers)
                         else:
                             val = "; ".join(map(str, obj_ids)) if obj_ids else ""
                     elif p_format == "date":
                         raw_dt = prop.get("date")
-                        val = (
-                            self._convert_to_kst(str(raw_dt))
-                            if raw_dt is not None
-                            else None
-                        )
+                        val = self._convert_to_kst(str(raw_dt)) if raw_dt is not None else None
                     elif p_format == "select":
                         sel_obj = prop.get("select")
                         if isinstance(sel_obj, dict):
@@ -360,9 +324,7 @@ class CsvGenerator:
         writer = csv.DictWriter(output, fieldnames=all_keys, quoting=csv.QUOTE_MINIMAL)
         writer.writeheader()
         for row in data:
-            clean_row = {
-                k: (row.get(k) if row.get(k) is not None else "") for k in all_keys
-            }
+            clean_row = {k: (row.get(k) if row.get(k) is not None else "") for k in all_keys}
             writer.writerow(clean_row)
         return output.getvalue().strip()
 
@@ -374,30 +336,30 @@ class Tools:
             description="The base URL of your Anytype MCP server.",
         )
         api_key: str = Field(default="", description="Your API key for authentication.")
-
+        
         type_display_config: str = Field(
             default="{}",
-            description="JSON mapping type_key to a list of allowed column names.",
+            description="JSON mapping type_key to a list of allowed column names."
         )
-
+        
         type_exclude_config: str = Field(
             default="{}",
-            description="JSON mapping type_key (or 'all') to a list of columns to exclude during mixed-type results.",
+            description="JSON mapping type_key (or 'all') to a list of columns to exclude during mixed-type results."
         )
-
+        
         max_columns_unknown_type: int = Field(
             default=8,
-            description="Max number of columns to show when no specific config exists for a type.",
+            description="Max number of columns to show when no specific config exists for a type."
         )
-
+        
         show_context_metadata: bool = Field(
             default=False,
-            description="Whether to include structural metadata (id, space_id, layout, etc.) in the output.",
+            description="Whether to include structural metadata (id, space_id, layout, etc.) in the output."
         )
 
         preview_rows: int = Field(
             default=3,
-            description="Number of rows to show as preview when prompting for configuration.",
+            description="Number of rows to show as preview when prompting for configuration."
         )
 
     def __init__(self):
@@ -407,23 +369,21 @@ class Tools:
         self.flattening_service = FlatteningService(self.valves)
 
     async def _run_and_format(
-        self,
-        endpoint: str,
-        method: str,
-        payload: Dict[str, Any],
+            self,
+            endpoint: str,
+            method: str,
+            payload: Dict[str, Any],
     ) -> Union[str, tuple[HTMLResponse, Any]]:
         proxy = ProxyClient(self.valves.mcp_url)
         headers = self.auth_manager.get_headers(self.valves.api_key)
         try:
             response_json = await proxy.request(method, endpoint, payload, headers)
-
+            
             # Use the new async flattening service with Unified Row logic and Pagination support
-            processed_rows, pagination = await self.flattening_service.flatten_data(
-                response_json, proxy, self.valves.api_key
-            )
+            processed_rows, pagination = await self.flattening_service.flatten_data(response_json, proxy, self.valves.api_key)
 
             if not processed_rows:
-                return "데이터가 없습니다."
+                return "No data found."
 
             # 1. Detect unconfigured types
             unconfigured_types = []
@@ -443,22 +403,20 @@ class Tools:
                 preview_count = self.valves.preview_rows
                 preview_rows = processed_rows[:preview_count]
                 csv_preview = self.csv_generator.generate(preview_rows)
-
+                
                 prompt_msg = ""
                 for utype in unconfigured_types:
                     prompt_msg += f"\n⚠️ **[{utype}]** is not yet configured. To set up its columns, please say '**{utype} 속성 설정해줘**'."
-
-                return (
-                    f"### 📊 [DATA PREVIEW - LIMITED VIEW]\n\n"
-                    f"{prompt_msg}\n\n"
-                    f"(Showing only top {len(preview_rows)} rows for unconfigured types)\n\n"
-                    f"```csv\n{csv_preview}\n```"
-                )
+                
+                return (f"### 📊 [DATA PREVIEW - LIMITED VIEW]\n\n"
+                        f"{prompt_msg}\n\n"
+                        f"(Showing only top {len(preview_rows)} rows for unconfigured types)\n\n"
+                        f"```csv\n{csv_preview}\n```")
 
             # 3. Standard Full Output (All types are configured or no unconfigured types found)
             # We return an HTMLResponse to trigger Rich UI embedding via OpenWebUI middleware/event emitter.
             csv_content = self.csv_generator.generate(processed_rows)
-
+            
             # Build Pagination Info String for LLM context
             pag_info = []
             if pagination:
@@ -467,12 +425,12 @@ class Tools:
                 limit = pagination.get("limit", len(processed_rows))
                 has_more = pagination.get("has_more", False)
                 current_end = offset + len(processed_rows)
-                status_text = f"{offset + 1}-{min(current_end, total if total else current_end)} / {total if total else '?'}건"
+                status_text = f"Showing items {offset + 1} to {min(current_end, total if total else current_end)} of {total if total else 'N/A'}"
                 pag_info.append(f"**{status_text}**")
                 if has_more:
-                    pag_info.append("(더 많은 결과 있음)")
-
-            pagination_md = f"**페이지:** {' | '.join(pag_info)}\n" if pag_info else ""
+                    pag_info.append("(More results available)")
+            
+            pagination_md = f"**Pagination:** {' | '.join(pag_info)}\n" if pag_info else ""
 
             html_template = f"""
 <!DOCTYPE html>
@@ -540,51 +498,47 @@ class Tools:
 </html>
 """
             # Return the HTMLResponse and a text context summary to the LLM
-            context_summary = f"{len(processed_rows)} 개 항목을 찾았습니다. 인터랙티브 테이블로 표시합니다."
+            context_summary = f"{len(processed_rows)} items found. Displaying interactive table."
             if pagination and pagination.get("has_more"):
-                context_summary += " 더 많은 결과가 페이지네이션으로 표시됩니다."
-
-            return HTMLResponse(
-                content=html_template, headers={"Content-Disposition": "inline"}
-            ), context_summary
+                context_summary += " More results available via pagination."
+                
+            return HTMLResponse(content=html_template, headers={"Content-Disposition": "inline"}), context_summary
 
         except Exception as e:
-            return f"'{endpoint}' 실행 중 오류 발생: {str(e)}"
+            return f"Error executing '{endpoint}': {str(e)}"
+
 
     # --- TOOL METHODS START HERE ---
 
     async def manage_type_config(
-        self, type_key: str, space_id: Optional[str] = None
+            self,
+            type_key: str,
+            space_id: Optional[str] = None
     ) -> str:
         """Manage display configuration for a specific object type via interactive checkbox UI."""
         proxy = ProxyClient(self.valves.mcp_url)
         headers = self.auth_manager.get_headers(self.valves.api_key)
-
+        
         available_columns = []
-
+        
         if space_id:
-            try:
-                template_resp = await proxy.request(
-                    "POST",
-                    "API-list-templates",
-                    {"space_id": space_id, "type_id": type_key},
-                    headers,
-                )
-                if isinstance(template_resp, list) and len(template_resp) > 0:
-                    template = template_resp[0]
-                    props = template.get("properties", [])
-                    available_columns = [p.get("name") for p in props if p.get("name")]
-            except Exception:
-                pass
-
+             try:
+                 template_resp = await proxy.request("POST", "API-list-templates", {"space_id": space_id, "type_id": type_key}, headers)
+                 if isinstance(template_resp, list) and len(template_resp) > 0:
+                     template = template_resp[0]
+                     props = template.get("properties", [])
+                     available_columns = [p.get("name") for p in props if p.get("name")]
+             except Exception:
+                 pass
+        
         current_config_str = self.valves.type_display_config
         try:
             current_config = json.loads(current_config_str)
         except Exception:
             current_config = {}
-
+        
         existing_cols = current_config.get(type_key, [])
-
+        
         html_output = f"""
 <div style="border: 1px solid #555; padding: 15px; border-radius: 8px; background: #f9f9f9; color: #333;">
     <h4>⚙️ {type_key} 속성 설정</h4>
@@ -596,7 +550,7 @@ class Tools:
                 checked = "checked" if col in existing_cols else ""
                 html_output += f'<label style="display: block; margin-bottom: 5px;"><input type="checkbox" name="col" value="{col}" {checked}> {col}</label>'
         else:
-            html_output += "<p><small>자동 감지된 속성이 없습니다. 아래에 직접 입력하거나 검색 후 다시 시도해 주세요.</small></p>"
+            html_output += '<p><small>자동 감지된 속성이 없습니다. 아래에 직접 입력하거나 검색 후 다시 시도해 주세요.</small></p>'
             html_output += '<input type="text" id="manualCol" placeholder="컬럼명 입력..." style="width:70%;"><button type="button" onclick="addManual()">추가</button><br><br>'
             html_output += '<ul id="manualList" style="margin-top: 10px;"></ul>'
 
@@ -671,24 +625,18 @@ class Tools:
         return html_output
 
     async def search_global(
-        self,
-        offset: int = 0,
-        limit: int = 100,
-        query: Optional[str] = None,
-        sort: Optional[dict] = None,
-        types: Optional[list] = None,
+            self,
+            offset: int = 0,
+            limit: int = 100,
+            query: Optional[str] = None,
+            sort: Optional[dict] = None,
+            types: Optional[list] = None,
     ) -> str:
         """Search objects across all spaces
         Error Responses:
         401: Unauthorized
         500: Internal server error"""
-        payload = {
-            "offset": offset,
-            "limit": limit,
-            "query": query,
-            "sort": sort,
-            "types": types,
-        }
+        payload = {"offset": offset, "limit": limit, "query": query, "sort": sort, "types": types}
         payload = {k: v for k, v in payload.items() if v is not None}
         return await self._run_and_format("API-search-global", "POST", payload)
 
@@ -702,7 +650,7 @@ class Tools:
         return await self._run_and_format("API-list-spaces", "POST", payload)
 
     async def create_space(
-        self, description: Optional[str] = None, name: Optional[str] = None
+            self, description: Optional[str] = None, name: Optional[str] = None
     ) -> str:
         """Create space
         Error Responses:
@@ -727,10 +675,10 @@ class Tools:
         return await self._run_and_format("API-get-space", "POST", payload)
 
     async def update_space(
-        self,
-        space_id: str,
-        description: Optional[str] = None,
-        name: Optional[str] = None,
+            self,
+            space_id: str,
+            description: Optional[str] = None,
+            name: Optional[str] = None,
     ) -> str:
         """Update space
         Error Responses:
@@ -746,7 +694,7 @@ class Tools:
         return await self._run_and_format("API-update-space", "POST", payload)
 
     async def add_list_objects(
-        self, space_id: str, list_id: str, objects: Optional[list] = None
+            self, space_id: str, list_id: str, objects: Optional[list] = None
     ) -> str:
         """Add objects to list
         Error Responses:
@@ -761,7 +709,7 @@ class Tools:
         return await self._run_and_format("API-add-list-objects", "POST", payload)
 
     async def remove_list_object(
-        self, space_id: str, list_id: str, object_id: str
+            self, space_id: str, list_id: str, object_id: str
     ) -> str:
         """Remove object from list
         Error Responses:
@@ -776,7 +724,7 @@ class Tools:
         return await self._run_and_format("API-remove-list-object", "POST", payload)
 
     async def get_list_views(
-        self, space_id: str, list_id: str, offset: int = 0, limit: Optional[int] = None
+            self, space_id: str, list_id: str, offset: int = 0, limit: Optional[int] = None
     ) -> str:
         """Get list views
         Error Responses:
@@ -784,22 +732,17 @@ class Tools:
         404: Not found
         500: Internal server error"""
 
-        payload = {
-            "space_id": space_id,
-            "list_id": list_id,
-            "offset": offset,
-            "limit": limit,
-        }
+        payload = {"space_id": space_id, "list_id": list_id, "offset": offset, "limit": limit}
         payload = {k: v for k, v in payload.items() if v is not None}
         return await self._run_and_format("API-get-list-views", "POST", payload)
 
     async def get_list_objects(
-        self,
-        space_id: str,
-        list_id: str,
-        view_id: str,
-        offset: int = 0,
-        limit: Optional[int] = None,
+            self,
+            space_id: str,
+            list_id: str,
+            view_id: str,
+            offset: int = 0,
+            limit: Optional[int] = None,
     ) -> str:
         """Get objects in list
         Error Responses:
@@ -807,18 +750,12 @@ class Tools:
         404: Not found
         500: Internal server error"""
 
-        payload = {
-            "space_id": space_id,
-            "list_id": list_id,
-            "view_id": view_id,
-            "offset": offset,
-            "limit": limit,
-        }
+        payload = {"space_id": space_id, "list_id": list_id, "view_id": view_id, "offset": offset, "limit": limit}
         payload = {k: v for k, v in payload.items() if v is not None}
         return await self._run_and_format("API-get-list-objects", "POST", payload)
 
     async def list_members(
-        self, space_id: str, offset: int = 0, limit: int = 100
+            self, space_id: str, offset: int = 0, limit: int = 100
     ) -> str:
         """List members
         Error Responses:
@@ -841,7 +778,7 @@ class Tools:
         return await self._run_and_format("API-get-member", "POST", payload)
 
     async def list_objects(
-        self, space_id: str, offset: int = 0, limit: int = 100
+            self, space_id: str, offset: int = 0, limit: int = 100
     ) -> str:
         """List objects
         Error Responses:
@@ -853,14 +790,14 @@ class Tools:
         return await self._run_and_format("API-list-objects", "POST", payload)
 
     async def create_object(
-        self,
-        space_id: str,
-        body: Optional[str] = None,
-        icon: Optional[dict] = None,
-        name: Optional[str] = None,
-        properties: Optional[list] = None,
-        template_id: Optional[str] = None,
-        type_key: Optional[str] = None,
+            self,
+            space_id: str,
+            body: Optional[str] = None,
+            icon: Optional[dict] = None,
+            name: Optional[str] = None,
+            properties: Optional[list] = None,
+            template_id: Optional[str] = None,
+            type_key: Optional[str] = None,
     ) -> str:
         """Create object
         Error Responses:
@@ -869,15 +806,7 @@ class Tools:
         429: Rate limit exceeded
         500: Internal server error"""
 
-        payload = {
-            "space_id": space_id,
-            "body": body,
-            "icon": icon,
-            "name": name,
-            "properties": properties,
-            "template_id": template_id,
-            "type_key": type_key,
-        }
+        payload = {"space_id": space_id, "body": body, "icon": icon, "name": name, "properties": properties, "template_id": template_id, "type_key": type_key}
         payload = {k: v for k, v in payload.items() if v is not None}
         return await self._run_and_format("API-create-object", "POST", payload)
 
@@ -896,7 +825,7 @@ class Tools:
         return await self._run_and_format("API-delete-object", "POST", payload)
 
     async def get_object(
-        self, space_id: str, object_id: str, format: str = '"md"'
+            self, space_id: str, object_id: str, format: str = '"md"'
     ) -> str:
         """Get object
         Error Responses:
@@ -910,14 +839,14 @@ class Tools:
         return await self._run_and_format("API-get-object", "POST", payload)
 
     async def update_object(
-        self,
-        space_id: str,
-        object_id: str,
-        icon: Optional[dict] = None,
-        markdown: Optional[str] = None,
-        name: Optional[str] = None,
-        properties: Optional[list] = None,
-        type_key: Optional[str] = None,
+            self,
+            space_id: str,
+            object_id: str,
+            icon: Optional[dict] = None,
+            markdown: Optional[str] = None,
+            name: Optional[str] = None,
+            properties: Optional[list] = None,
+            type_key: Optional[str] = None,
     ) -> str:
         """Update object
         Error Responses:
@@ -928,20 +857,12 @@ class Tools:
         429: Rate limit exceeded
         500: Internal server error"""
 
-        payload = {
-            "space_id": space_id,
-            "object_id": object_id,
-            "icon": icon,
-            "markdown": markdown,
-            "name": name,
-            "properties": properties,
-            "type_key": type_key,
-        }
+        payload = {"space_id": space_id, "object_id": object_id, "icon": icon, "markdown": markdown, "name": name, "properties": properties, "type_key": type_key}
         payload = {k: v for k, v in payload.items() if v is not None}
         return await self._run_and_format("API-update-object", "POST", payload)
 
     async def list_properties(
-        self, space_id: str, offset: int = 0, limit: int = 100
+            self, space_id: str, offset: int = 0, limit: int = 100
     ) -> str:
         """List properties
         Error Responses:
@@ -953,12 +874,12 @@ class Tools:
         return await self._run_and_format("API-list-properties", "POST", payload)
 
     async def create_property(
-        self,
-        space_id: str,
-        format: Optional[str] = None,
-        key: Optional[str] = None,
-        name: Optional[str] = None,
-        tags: Optional[list] = None,
+            self,
+            space_id: str,
+            format: Optional[str] = None,
+            key: Optional[str] = None,
+            name: Optional[str] = None,
+            tags: Optional[list] = None,
     ) -> str:
         """Create property
         Error Responses:
@@ -967,13 +888,7 @@ class Tools:
         429: Rate limit exceeded
         500: Internal server error"""
 
-        payload = {
-            "space_id": space_id,
-            "format": format,
-            "key": key,
-            "name": name,
-            "tags": tags,
-        }
+        payload = {"space_id": space_id, "format": format, "key": key, "name": name, "tags": tags}
         payload = {k: v for k, v in payload.items() if v is not None}
         return await self._run_and_format("API-create-property", "POST", payload)
 
@@ -1004,11 +919,11 @@ class Tools:
         return await self._run_and_format("API-get-property", "POST", payload)
 
     async def update_property(
-        self,
-        space_id: str,
-        property_id: str,
-        key: Optional[str] = None,
-        name: Optional[str] = None,
+            self,
+            space_id: str,
+            property_id: str,
+            key: Optional[str] = None,
+            name: Optional[str] = None,
     ) -> str:
         """Update property
         Error Responses:
@@ -1020,12 +935,7 @@ class Tools:
         429: Rate limit exceeded
         500: Internal server error"""
 
-        payload = {
-            "space_id": space_id,
-            "property_id": property_id,
-            "key": key,
-            "name": name,
-        }
+        payload = {"space_id": space_id, "property_id": property_id, "key": key, "name": name}
         payload = {k: v for k, v in payload.items() if v is not None}
         return await self._run_and_format("API-update-property", "POST", payload)
 
@@ -1041,12 +951,12 @@ class Tools:
         return await self._run_and_format("API-list-tags", "POST", payload)
 
     async def create_tag(
-        self,
-        space_id: str,
-        property_id: str,
-        color: Optional[str] = None,
-        key: Optional[str] = None,
-        name: Optional[str] = None,
+            self,
+            space_id: str,
+            property_id: str,
+            color: Optional[str] = None,
+            key: Optional[str] = None,
+            name: Optional[str] = None,
     ) -> str:
         """Create tag
         Error Responses:
@@ -1055,13 +965,7 @@ class Tools:
         429: Rate limit exceeded
         500: Internal server error"""
 
-        payload = {
-            "space_id": space_id,
-            "property_id": property_id,
-            "color": color,
-            "key": key,
-            "name": name,
-        }
+        payload = {"space_id": space_id, "property_id": property_id, "color": color, "key": key, "name": name}
         payload = {k: v for k, v in payload.items() if v is not None}
         return await self._run_and_format("API-create-tag", "POST", payload)
 
@@ -1092,13 +996,13 @@ class Tools:
         return await self._run_and_format("API-get-tag", "POST", payload)
 
     async def update_tag(
-        self,
-        space_id: str,
-        property_id: str,
-        tag_id: str,
-        color: Optional[str] = None,
-        key: Optional[str] = None,
-        name: Optional[str] = None,
+            self,
+            space_id: str,
+            property_id: str,
+            tag_id: str,
+            color: Optional[str] = None,
+            key: Optional[str] = None,
+            name: Optional[str] = None,
     ) -> str:
         """Update tag
         Error Responses:
@@ -1110,39 +1014,25 @@ class Tools:
         429: Rate limit exceeded
         500: Internal server error"""
 
-        payload = {
-            "space_id": space_id,
-            "property_id": property_id,
-            "tag_id": tag_id,
-            "color": color,
-            "key": key,
-            "name": name,
-        }
+        payload = {"space_id": space_id, "property_id": property_id, "tag_id": tag_id, "color": color, "key": key, "name": name}
         payload = {k: v for k, v in payload.items() if v is not None}
         return await self._run_and_format("API-update-tag", "POST", payload)
 
     async def search_space(
-        self,
-        space_id: str,
-        offset: int = 0,
-        limit: int = 100,
-        query: Optional[str] = None,
-        sort: Optional[dict] = None,
-        types: Optional[list] = None,
+            self,
+            space_id: str,
+            offset: int = 0,
+            limit: int = 100,
+            query: Optional[str] = None,
+            sort: Optional[dict] = None,
+            types: Optional[list] = None,
     ) -> str:
         """Search objects within a space
         Error Responses:
         401: Unauthorized
         500: Internal server error"""
 
-        payload = {
-            "space_id": space_id,
-            "offset": offset,
-            "limit": limit,
-            "query": query,
-            "sort": sort,
-            "types": types,
-        }
+        payload = {"space_id": space_id, "offset": offset, "limit": limit, "query": query, "sort": sort, "types": types}
         payload = {k: v for k, v in payload.items() if v is not None}
         return await self._run_and_format("API-search-space", "POST", payload)
 
@@ -1157,14 +1047,14 @@ class Tools:
         return await self._run_and_format("API-list-types", "POST", payload)
 
     async def create_type(
-        self,
-        space_id: str,
-        icon: Optional[dict] = None,
-        key: Optional[str] = None,
-        layout: Optional[str] = None,
-        name: Optional[str] = None,
-        plural_name: Optional[str] = None,
-        properties: Optional[list] = None,
+            self,
+            space_id: str,
+            icon: Optional[dict] = None,
+            key: Optional[str] = None,
+            layout: Optional[str] = None,
+            name: Optional[str] = None,
+            plural_name: Optional[str] = None,
+            properties: Optional[list] = None,
     ) -> str:
         """Create type
         Error Responses:
@@ -1173,15 +1063,7 @@ class Tools:
         429: Rate limit exceeded
         500: Internal server error"""
 
-        payload = {
-            "space_id": space_id,
-            "icon": icon,
-            "key": key,
-            "layout": layout,
-            "name": name,
-            "plural_name": plural_name,
-            "properties": properties,
-        }
+        payload = {"space_id": space_id, "icon": icon, "key": key, "layout": layout, "name": name, "plural_name": plural_name, "properties": properties}
         payload = {k: v for k, v in payload.items() if v is not None}
         return await self._run_and_format("API-create-type", "POST", payload)
 
@@ -1212,15 +1094,15 @@ class Tools:
         return await self._run_and_format("API-get-type", "POST", payload)
 
     async def update_type(
-        self,
-        space_id: str,
-        type_id: str,
-        icon: Optional[dict] = None,
-        key: Optional[str] = None,
-        layout: Optional[str] = None,
-        name: Optional[str] = None,
-        plural_name: Optional[str] = None,
-        properties: Optional[list] = None,
+            self,
+            space_id: str,
+            type_id: str,
+            icon: Optional[dict] = None,
+            key: Optional[str] = None,
+            layout: Optional[str] = None,
+            name: Optional[str] = None,
+            plural_name: Optional[str] = None,
+            properties: Optional[list] = None,
     ) -> str:
         """Update type
         Error Responses:
@@ -1231,37 +1113,23 @@ class Tools:
         429: Rate limit exceeded
         500: Internal server error"""
 
-        payload = {
-            "space_id": space_id,
-            "type_id": type_id,
-            "icon": icon,
-            "key": key,
-            "layout": layout,
-            "name": name,
-            "plural_name": plural_name,
-            "properties": properties,
-        }
+        payload = {"space_id": space_id, "type_id": type_id, "icon": icon, "key": key, "layout": layout, "name": name, "plural_name": plural_name, "properties": properties}
         payload = {k: v for k, v in payload.items() if v is not None}
         return await self._run_and_format("API-update-type", "POST", payload)
 
     async def list_templates(
-        self,
-        space_id: str,
-        type_id: Optional[str] = None,
-        offset: int = 0,
-        limit: int = 100,
+            self,
+            space_id: str,
+            type_id: Optional[str] = None,
+            offset: int = 0,
+            limit: int = 100,
     ) -> str:
         """List templates
         Error Responses:
         401: Unauthorized
         500: Internal server error"""
 
-        payload = {
-            "space_id": space_id,
-            "type_id": type_id,
-            "offset": offset,
-            "limit": limit,
-        }
+        payload = {"space_id": space_id, "type_id": type_id, "offset": offset, "limit": limit}
         payload = {k: v for k, v in payload.items() if v is not None}
         return await self._run_and_format("API-list-templates", "POST", payload)
 

@@ -1,6 +1,142 @@
 {
-  "status": 404,
-  "object": "error",
-  "code": "object_not_found",
-  "message": "failed to get list"
+  "request": {
+    "space_id": "bafyreiacibr3qyhhbsba4zogspex2l46drdqkt7qtt3unyuyyfvxzfatxy.2uck3k7ub1oi4",
+    "list_id": "bafyreie3phnmulqj6bcmqjkuzyxht6gejx4ywvshox2pddjgfulcd4zgoa",
+    "offset": 0,
+    "limit": 100
+  },
+  "response": {
+    "data": [
+      {
+        "id": "all",
+        "name": "진행",
+        "layout": "list",
+        "filters": [
+          {
+            "id": "69c4c8e8421aa95db6acf3d5",
+            "property_key": "status",
+            "format": "select",
+            "condition": "nin",
+            "value": ""
+          }
+        ],
+        "sorts": [
+          {
+            "id": "69121531ccba0a216c07988d",
+            "property_key": "lastModifiedDate",
+            "format": "text",
+            "sort_type": "desc"
+          }
+        ]
+      },
+      {
+        "id": "b053ba4b-12b9-4236-a64e-e7ed4e958e58",
+        "name": "업무(필터적용필요)",
+        "layout": "list",
+        "filters": [
+          {
+            "id": "69c4c8e8421aa95db6acf3d5",
+            "property_key": "status",
+            "format": "select",
+            "condition": "nin",
+            "value": ""
+          },
+          {
+            "id": "69cca757421aa96e7f9cb234",
+            "property_key": "69c40d65b1a83c00691e9fce",
+            "format": "select",
+            "condition": "in",
+            "value": ""
+          }
+        ],
+        "sorts": [
+          {
+            "id": "69121531ccba0a216c07988d",
+            "property_key": "lastModifiedDate",
+            "format": "text",
+            "sort_type": "desc"
+          }
+        ]
+      },
+      {
+        "id": "46d68456-3958-4364-a671-c95e96c62d46",
+        "name": "개인(필터적용필요)",
+        "layout": "list",
+        "filters": [
+          {
+            "id": "69c4c8e8421aa95db6acf3d5",
+            "property_key": "status",
+            "format": "select",
+            "condition": "nin",
+            "value": ""
+          },
+          {
+            "id": "69cca76b421aa96e7f9cb235",
+            "property_key": "69c40d65b1a83c00691e9fce",
+            "format": "select",
+            "condition": "in",
+            "value": ""
+          }
+        ],
+        "sorts": [
+          {
+            "id": "69121531ccba0a216c07988d",
+            "property_key": "lastModifiedDate",
+            "format": "text",
+            "sort_type": "desc"
+          }
+        ]
+      },
+      {
+        "id": "2e8fd3dc-7b5d-404d-8c2c-e15be02882dc",
+        "name": "예정된(필터적용필요)",
+        "layout": "list",
+        "filters": [
+          {
+            "id": "69c4c8e8421aa95db6acf3d5",
+            "property_key": "status",
+            "format": "select",
+            "condition": "nin",
+            "value": ""
+          }
+        ],
+        "sorts": [
+          {
+            "id": "69121531ccba0a216c07988d",
+            "property_key": "lastModifiedDate",
+            "format": "text",
+            "sort_type": "desc"
+          }
+        ]
+      },
+      {
+        "id": "2e7fab3e-a8e9-4175-83a9-512464b8ca4a",
+        "name": "모두",
+        "layout": "list",
+        "filters": [
+          {
+            "id": "69c4c8e8421aa95db6acf3d5",
+            "property_key": "status",
+            "format": "select",
+            "condition": "nin",
+            "value": ""
+          }
+        ],
+        "sorts": [
+          {
+            "id": "69121531ccba0a216c07988d",
+            "property_key": "lastModifiedDate",
+            "format": "text",
+            "sort_type": "desc"
+          }
+        ]
+      }
+    ],
+    "pagination": {
+      "total": 5,
+      "offset": 0,
+      "limit": 100,
+      "has_more": false
+    }
+  }
 }
