@@ -490,13 +490,13 @@ class Tools:
     <div id="grid-container"></div>
     <pre id="csv_payload" style="display:none;">{csv_content}</pre>
     <script>
-      (function() {{
+       (function() {{
         // Height reporting for sandboxed iframe resizing in OpenWebUI
         function reportHeight() {{
-          try {{
+           try {{
             const h = document.documentElement.scrollHeight;
             parent.postMessage({{ type: 'iframe:height', height: h }}, '*');
-          }} catch (e) {{ console.error('Height report failed:', e); }}
+           }} catch (e) {{ console.error('Height report failed:', e); }}
         }}
         window.addEventListener('load', reportHeight);
         new ResizeObserver(reportHeight).observe(document.body);
@@ -509,32 +509,32 @@ class Tools:
         const lines = csvText.split('\\n');
         const headers = lines[0].split(',').map(h => h.trim());
         const rowData = lines.slice(1).map(line => {{
-          // Robust regex split handling quoted commas correctly
-          const values = line.split(/,(?=(?:(?:[^"]*\\"){{2}})*[^"]*$)/);
-          const obj = {{}};
-          headers.forEach((header, i) => {{
-              let val = values[i]?.trim() || '';
-              obj[header] = val.replace(/^"|"$/g, ''); // Remove wrapping quotes
-          }});
-          return obj;
+           // Robust regex split handling quoted commas correctly
+           const values = line.split(/,(?=(?:(?:[^"]*\\"){{2}})*[^"]*$)/);
+           const obj = {{}};
+           headers.forEach((header, i) => {{
+               let val = values[i]?.trim() || '';
+               obj[header] = val.replace(/^"|"$/g, ''); // Remove wrapping quotes
+           }});
+           return obj;
         }});
 
         const gridDiv = document.querySelector('#grid-container');
         const gridOptions = {{
-          columnDefs: headers.map(col => ({{ field: col, sortable: true, filter: true, resizable: true }})),
-          rowData: rowData,
-          pagination: true,
-          paginationPageSize: 20,
-          autoSizeLeft: true,
-          autoSizeRight: true
+           columnDefs: headers.map(col => ({{ field: col, sortable: true, filter: true, resizable: true }})),
+           rowData: rowData,
+           pagination: true,
+           paginationPageSize: 20,
+           autoSizeLeft: true,
+           autoSizeRight: true
         }};
 
         if (typeof agGrid !== 'undefined') {{
-          agGrid.createGrid(gridDiv, gridOptions);
+           agGrid.createGrid(gridDiv, gridOptions);
         }} else {{
-          gridDiv.innerHTML = '<p style="color:red">Error: AG Grid library not loaded.</p>';
+           gridDiv.innerHTML = '<p style="color:red">Error: AG Grid library not loaded.</p>';
         }}
-      }})();
+       }})();
     </script>
 </body>
 </html>
@@ -608,19 +608,19 @@ class Tools:
 </div>
 
 <script>
-  let currentCols = ${json.dumps(existing_cols)};
+   let currentCols = ${json.dumps(existing_cols)};
 
-  function addManual() {
+   function addManual() {
     const input = document.getElementById('manualCol');
     const val = input.value.trim();
     if (val && !currentCols.includes(val)) {
-      currentCols.push(val);
-      updateList();
-      input.value = '';
+       currentCols.push(val);
+       updateList();
+       input.value = '';
     }
-  }
+   }
 
-  function updateList() {
+   function updateList() {
     const list = document.getElementById('manualList');
     if (list) {
         list.innerHTML = '';
@@ -632,9 +632,9 @@ class Tools:
             list.appendChild(li);
         });
     }
-  }
+   }
 
-  async function saveConfig() {
+   async function saveConfig() {
     const status = document.getElementById('status');
     status.innerText = '저장 중...';
     
@@ -649,23 +649,23 @@ class Tools:
     const finalSelection = [...new Set([...selectedFromCheckboxes, ...currentCols])];
 
     try {{
-      // Note: In a real OpenWebUI environment, the TOOL_ID is required for direct API calls.
-      // Since we cannot easily get it here via JS, we provide an instruction fallback.
-      console.log("Attempting to save:", finalSelection);
+       // Note: In a real OpenWebUI environment, the TOOL_ID is required for direct API calls.
+       // Since we cannot easily get it here via JS, we provide an instruction fallback.
+       console.log("Attempting to save:", finalSelection);
       
-      // Simulation of success for UI feedback
-      await new Promise(r => setTimeout(r, 500));
+       // Simulation of success for UI feedback
+       await new Promise(r => setTimeout(r, 500));
       
-      status.innerText = '✅ 설정이 임시로 반영되었습니다! 채팅창에 "[type_key] 속성 변경해줘"라고 말하여 최종 적용하세요.';
-      status.style.color = 'green';
+       status.innerText = '✅ 설정이 임시로 반영되었습니다! 채팅창에 "[type_key] 속성 변경해줘"라고 말하여 최종 적용하세요.';
+       status.style.color = 'green';
       
-      // We store this in memory so that the LLM can see what happened next time if possible,
-      // but since this is client-side, it's just for user guidance.
+       // We store this in memory so that the LLM can see what happened next time if possible,
+       // but since this is client-side, it's just for user guidance.
     }} catch (e) {{
-      status.innerText = '❌ 오류: ' + e.message;
-      status.style.color = 'red';
+       status.innerText = '❌ 오류: ' + e.message;
+       status.style.color = 'red';
     }}
-  }
+   }
 </script>
 """
         return html_output
