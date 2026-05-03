@@ -400,6 +400,11 @@ class Tools:
             description="Number of rows to show as preview when prompting for configuration.",
         )
 
+        column_priority_order: str = Field(
+            default="name,id,type_key",
+            description='JSON mapping type_key (or "_global") to a list of columns in order. e.g., {"_global": ["name","id"], "note": ["name","content"]}',
+        )
+
     def __init__(self):
         self.auth_manager = AuthManager()
         self.csv_generator = CsvGenerator()
@@ -474,6 +479,29 @@ class Tools:
 
             pagination_md = f"**페이지:** {' | '.join(pag_info)}\n" if pag_info else ""
 
+            # Parse column_priority_order into JS array literal
+            priority_list = []
+            _col_raw = self.valves.column_priority_order
+            try:
+                col_config = json.loads(_col_raw)
+                if isinstance(col_config, dict):
+                    priority_list = col_config.get("_global", [])
+                elif isinstance(col_config, list):
+                    priority_list = col_config
+                elif isinstance(col_config, str):
+                    # JSON string like '"name,id,type_key"' -> split by comma
+                    priority_list = [c.strip() for c in col_config.split(",")]
+                else:
+                    priority_list = ["name", "id", "type_key"]
+            except Exception:
+                raw_str = _col_raw.strip()
+                if not raw_str.startswith("[") and not raw_str.startswith("{"):
+                    priority_list = [c.strip() for c in raw_str.split(",")]
+                else:
+                    priority_list = ["name", "id", "type_key"]
+            
+            js_array_literal = "[" + ", ".join("'" + str(c).replace("'", "\\'").strip() + "'" for c in priority_list) + "]"
+
             html_template = f"""
 <!DOCTYPE html>
 <html>
@@ -506,22 +534,75 @@ class Tools:
         const csvText = csvTextEl.textContent.trim();
         if (!csvText) return;
 
-        const lines = csvText.split('\\n');
-        const headers = lines[0].split(',').map(h => h.trim());
-        const rowData = lines.slice(1).map(line => {{
-           // Robust regex split handling quoted commas correctly
-           const values = line.split(/,(?=(?:(?:[^"]*\\"){{2}})*[^"]*$)/);
-           const obj = {{}};
-           headers.forEach((header, i) => {{
-               let val = values[i]?.trim() || '';
-               obj[header] = val.replace(/^"|"$/g, ''); // Remove wrapping quotes
+        var lines = csvText.split('\\n');
+
+        // Robust CSV parser that handles quoted fields with commas inside
+        function parseCSVLine(line) {{
+           var result = [];
+           var current = '';
+           var inQuotes = false;
+           for (var i = 0; i < line.length; i++) {{
+               var ch = line[i];
+               if (ch === '"') {{
+                   if (inQuotes && line[i + 1] === '"') {{
+                       current += '"';
+                       i++;
+                   }} else {{
+                       inQuotes = !inQuotes;
+                   }}
+               }} else if (ch === ',' && !inQuotes) {{
+                   result.push(current.trim());
+                   current = '';
+               }} else {{
+                   current += ch;
+               }}
+           }}
+           result.push(current.trim());
+           return result;
+        }}
+
+        var headers = parseCSVLine(lines[0]);
+        var rowData = lines.slice(1).filter(function(l){{return l.trim()!==''}}).map(function(line) {{
+           var values = parseCSVLine(line);
+           var obj = {{}};
+           headers.forEach(function(header, i) {{
+               var val = values[i] !== undefined ? values[i] : '';
+               obj[header] = val;
            }});
            return obj;
         }});
 
-        const gridDiv = document.querySelector('#grid-container');
-        const gridOptions = {{
-           columnDefs: headers.map(col => ({{ field: col, sortable: true, filter: true, resizable: true }})),
+        // Column order priority from valve configuration (with alias mapping)
+        var columnAliasMap = {{
+            "type_key": "type",
+            "type": "type"
+        }};
+        var columnPriorityOrderRaw = {js_array_literal};
+
+        function resolveColumnName(name) {{
+           if (columnAliasMap[name]) return columnAliasMap[name];
+           return name;
+        }}
+
+        var resolvedPriority = [];
+        for (var pi = 0; pi < columnPriorityOrderRaw.length; pi++) {{
+           resolvedPriority.push(resolveColumnName(columnPriorityOrderRaw[pi]));
+        }}
+
+        headers.sort(function(a, b) {{
+           var aResolved = resolveColumnName(a);
+           var bResolved = resolveColumnName(b);
+           var aIndex = resolvedPriority.indexOf(aResolved);
+           var bIndex = resolvedPriority.indexOf(bResolved);
+           if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+           if (aIndex !== -1) return -1;
+           if (bIndex !== -1) return 1;
+           return a.localeCompare(b);
+        }});
+
+        var gridDiv = document.querySelector('#grid-container');
+        var gridOptions = {{
+           columnDefs: headers.map(function(col) {{ return {{ field: col, sortable: true, filter: true, resizable: true }}; }}),
            rowData: rowData,
            pagination: true,
            paginationPageSize: 20,
