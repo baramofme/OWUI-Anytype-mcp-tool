@@ -1,3 +1,5 @@
 __pycache__/
 *.bak*
 _build_*/
+.idea/
+.venv_test/
