@@ -3,3 +3,13 @@ __pycache__/
 _build_*/
 .idea/
 .venv_test/
+
+# Temporary fix/refactor scripts
+_fix_indent.*
+_normalize_indent.py
+_apply_improvements.py
+*_clean.py
+
+# Test files
+test_*.py
+test_*.js
